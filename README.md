@@ -1,6 +1,8 @@
-# {{project_name}}
+# Gastroenterology post-COVID-19 recovery
 
-This is the code and configuration for {{project_name}}
+This is the code and configuration for Gastroenterology post-COVID-19 recovery.
+
+Specifically, at present, we are investigating the use of quantitative FIT in the two-week-wait cancer pathway.
 
 * The paper is [here]()
 * Raw model outputs, including charts, crosstabs, etc, are in `released_outputs/`
