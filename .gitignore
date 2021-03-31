@@ -5,3 +5,5 @@ __pycache__
 .python-version
 output/*
 metadata/*
+.Rproj.user
+.Rhistory
