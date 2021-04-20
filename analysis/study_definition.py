@@ -8,8 +8,39 @@ study = StudyDefinition(
         "rate": "uniform",
         "incidence": 0.5,
     },
-    population=patients.registered_with_one_practice_between(
-        "2020-04-17", "2020-12-31"
+    population=patients.satisfying(
+        """
+        has_follow_up AND
+        (age >=18 AND age <= 110) AND
+        (sex = "M" OR sex = "F")
+        """,
+        has_follow_up=patients.registered_with_one_practice_between(
+            "2020-04-17", "2020-12-31"
+        )
+    ),
+    age=patients.age_as_of(
+        "2020-04-17",
+        return_expectations={
+            "rate": "universal",
+            "int": {"distribution": "population_ages"},
+        },
+    ),
+    # https://github.com/ebmdatalab/tpp-sql-notebook/issues/46
+    sex=patients.sex(
+        return_expectations={
+            "rate": "universal",
+            "category": {"ratios": {"M": 0.49, "F": 0.51}},
+        }
+    ),
+    ethnicity=patients.with_these_clinical_events(
+        ethnicity_codes,
+        returning="category",
+        find_last_match_in_period=True,
+        include_date_of_match=True,
+        return_expectations={
+            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
+            "incidence": 0.75,
+        },
     ),
     stp=patients.registered_practice_as_of(
         "2020-04-17",
