@@ -1,0 +1,34 @@
+{
+  "files": {
+    "user-NikNakk-quantitative-faecal-immunochemical-test.csv": {
+      "id": "user/NikNakk/quantitative-faecal-immunochemical-test/5fe16ac9",
+      "url": "https://codelists.opensafely.org/codelist/user/NikNakk/quantitative-faecal-immunochemical-test/5fe16ac9/",
+      "downloaded_at": "2021-04-21 16:10:25.437488Z",
+      "sha": "03b198a60e773984e2e2acd293a264d103a82f86"
+    },
+    "user-NikNakk-bowel-cancer-diagnosis.csv": {
+      "id": "user/NikNakk/bowel-cancer-diagnosis/62942abf",
+      "url": "https://codelists.opensafely.org/codelist/user/NikNakk/bowel-cancer-diagnosis/62942abf/",
+      "downloaded_at": "2021-04-21 16:10:27.656937Z",
+      "sha": "97628c11d04860d481f4d43a4d520e7118c67a9a"
+    },
+    "user-NikNakk-fast-track-colorectal-cancer-referral.csv": {
+      "id": "user/NikNakk/fast-track-colorectal-cancer-referral/14b3112a",
+      "url": "https://codelists.opensafely.org/codelist/user/NikNakk/fast-track-colorectal-cancer-referral/14b3112a/",
+      "downloaded_at": "2021-04-21 16:10:28.118848Z",
+      "sha": "d3af79437da8322bc2fcd548ecdf2f322f0ec7d2"
+    },
+    "user-NikNakk-seen-in-fast-track-colorectal-clinic.csv": {
+      "id": "user/NikNakk/seen-in-fast-track-colorectal-clinic/7ba39df4",
+      "url": "https://codelists.opensafely.org/codelist/user/NikNakk/seen-in-fast-track-colorectal-clinic/7ba39df4/",
+      "downloaded_at": "2021-04-21 16:10:28.395931Z",
+      "sha": "9172696379f3a46de0b26f052874fd1cb82f2784"
+    },
+    "opensafely-ethnicity.csv": {
+      "id": "opensafely/ethnicity/2020-04-27",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/ethnicity/2020-04-27/",
+      "downloaded_at": "2021-04-21 16:10:28.894516Z",
+      "sha": "3d2f3998b71863a80b24d60f6f4282e14191ae13"
+    }
+  }
+}

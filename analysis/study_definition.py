@@ -72,7 +72,7 @@ study = StudyDefinition(
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2020-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
             "incidence": 0.1,
         },
     ),
@@ -84,7 +84,7 @@ study = StudyDefinition(
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2020-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
             "incidence": 0.1,
         },
     ),
@@ -97,7 +97,7 @@ study = StudyDefinition(
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2020-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
             "incidence": 0.1,
         },
     ),

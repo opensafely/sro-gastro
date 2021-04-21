@@ -17,4 +17,3 @@ actions:
     outputs:
       moderately_sensitive:
         count_by_stp: output/qfit_by_stp.csv
-        qfit_summary: output/summary_qfit_values.csv
