@@ -17,3 +17,5 @@ actions:
     outputs:
       moderately_sensitive:
         count_by_stp: output/qfit_by_stp.csv
+        qfits_by_stp: output/qfits_by_stp.png
+        qfit_months_by_stp: output/qfit_months_by_stp.png
