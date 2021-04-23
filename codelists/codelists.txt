@@ -1,5 +1,8 @@
 user/NikNakk/quantitative-faecal-immunochemical-test/5fe16ac9
+user/NikNakk/faecal-occult-blood-test/47db1575
 user/NikNakk/bowel-cancer-diagnosis/62942abf
+user/NikNakk/flexible-sigmoidoscopy/7cacbbd5
+user/NikNakk/colonoscopy/7621e311
 user/NikNakk/fast-track-colorectal-cancer-referral/14b3112a
 user/NikNakk/seen-in-fast-track-colorectal-clinic/7ba39df4
 opensafely/ethnicity/2020-04-27

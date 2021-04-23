@@ -34,3 +34,21 @@ ft_colorectal_clinic_codes = codelist_from_csv(
   system="snomed",
   column="code"
 )
+
+fobt_codes = codelist_from_csv(
+  "codelists/user-NikNakk-faecal-occult-blood-test.csv",
+  system="snomed",
+  column="code"
+)
+
+flexi_sig_codes = codelist_from_csv(
+  "codelists/user-NikNakk-flexible-sigmoidoscopy.csv",
+  system="snomed",
+  column="code"
+)
+
+colonoscopy_codes = codelist_from_csv(
+  "codelists/user-NikNakk-colonoscopy.csv",
+  system="snomed",
+  column="code"
+)

@@ -9,7 +9,7 @@ input <- read_csv("output/input.csv", col_types = cols(.default = col_character(
   mutate(
     across(matches("^(qfit|ft.*|crc.*)_date$"), lubridate::ymd),
     across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
-    across(c(qfit, age), as.numeric)
+    across(c(qfit, age, fobt_num), as.numeric)
   )
 
 # Counts of qFIT by STP
@@ -40,14 +40,25 @@ input %>%
   ) %>% 
   write_csv("output/qfit_by_stp.csv")
 
-qfits_by_stp <- input %>% 
-  filter(!is.na(qfit_date)) %>% 
-  count(stp, qfit = round(qfit)) %>% 
+qfits_by_stp_log_10 <- input %>% 
+  filter(!is.na(qfit_date), qfit > 0) %>% 
+  count(stp, qfit = round(qfit)) %>%
   ggplot(aes(qfit, n)) +
   geom_col(fill = "dark blue") +
+  scale_x_log10() +
   facet_wrap(quos(stp), scales = "free")
 
-ggsave("output/qfits_by_stp.png", qfits_by_stp, width = 24, height = 24)
+ggsave("output/qfits_by_stp_log_scale.png", qfits_by_stp_log_10, width = 24, height = 24)
+
+qfits_by_stp_near_10 <- input %>% 
+  filter(!is.na(qfit_date)) %>% 
+  count(stp, qfit = round(qfit)) %>%
+  ggplot(aes(qfit, n)) +
+  geom_col(fill = "dark blue") +
+  xlim(c(5, 15)) +
+  facet_wrap(quos(stp), scales = "free")
+
+ggsave("output/qfits_by_stp_near_10.png", qfits_by_stp_near_10, width = 24, height = 24)
 
 qfit_months_by_stp <- input %>% 
   filter(!is.na(qfit_date)) %>% 
@@ -57,5 +68,26 @@ qfit_months_by_stp <- input %>%
   facet_wrap(quos(stp), scales = "free")
 
 ggsave("output/qfit_months_by_stp.png", qfit_months_by_stp, width = 24, height = 24)
+
+fobts_by_stp_log_10 <- input %>% 
+  filter(!is.na(fobt_num_date), fobt_num >= 0) %>% 
+  count(stp, fobt_num = pmax(0.1, round(fobt_num))) %>%
+  ggplot(aes(fobt_num, n)) +
+  geom_col(fill = "dark blue") +
+  scale_x_log10() +
+  facet_wrap(quos(stp), scales = "free")
+
+ggsave("output/fobts_by_stp_log_scale.png", fobts_by_stp_log_10, width = 24, height = 24)
+
+fobt_cat <- input %>% 
+  filter(!is.na(fobt_date)) %>% 
+  count(stp, fobt) %>%
+  ggplot(aes(fobt, n)) +
+  geom_col(fill = "dark blue") +
+  facet_wrap(quos(stp), scales = "free") +
+  coord_flip()
+
+ggsave("output/fobts_by_stp_cat.png", fobt_cat, width = 24, height = 24)
+
 
 # write_csv(as.data.frame(table(input$qfit)), "output/summary_qfit_values.csv")
