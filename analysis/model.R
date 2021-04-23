@@ -5,7 +5,12 @@ library(tidyverse)
 library(lubridate)
 source("analysis/sro_gastro_functions.R")
 # Read data output from cohortextractor
-input <- read_csv("output/input.csv")
+input <- read_csv("output/input.csv", col_types = cols(.default = col_character())) %>% 
+  mutate(
+    across(matches("^(qfit|ft.*|crc.*)_date$"), lubridate::ymd),
+    across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
+    across(c(qfit, age), as.numeric)
+  )
 
 # Counts of qFIT by STP
 input %>%
