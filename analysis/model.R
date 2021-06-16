@@ -40,15 +40,14 @@ input %>%
   ) %>% 
   write_csv("output/qfit_by_stp.csv")
 
-qfits_by_stp_log_10 <- input %>% 
-  filter(!is.na(qfit_date), qfit > 0) %>% 
+qfits_by_stp <- input %>% 
+  filter(!is.na(qfit_date)) %>% 
   count(stp, qfit = round(qfit)) %>%
   ggplot(aes(qfit, n)) +
   geom_col(fill = "dark blue") +
-  scale_x_log10() +
   facet_wrap(quos(stp), scales = "free")
 
-ggsave("output/qfits_by_stp_log_scale.png", qfits_by_stp_log_10, width = 24, height = 24)
+ggsave("output/qfits_by_stp.png", qfits_by_stp, width = 24, height = 24)
 
 qfits_by_stp_near_10 <- input %>% 
   filter(!is.na(qfit_date)) %>% 
@@ -69,15 +68,14 @@ qfit_months_by_stp <- input %>%
 
 ggsave("output/qfit_months_by_stp.png", qfit_months_by_stp, width = 24, height = 24)
 
-fobts_by_stp_log_10 <- input %>% 
-  filter(!is.na(fobt_num_date), fobt_num >= 0) %>% 
-  count(stp, fobt_num = pmax(0.1, round(fobt_num))) %>%
+fobts_by_stp <- input %>% 
+  filter(!is.na(fobt_num_date)) %>% 
+  count(stp, fobt_num = round(fobt_num)) %>%
   ggplot(aes(fobt_num, n)) +
   geom_col(fill = "dark blue") +
-  scale_x_log10() +
   facet_wrap(quos(stp), scales = "free")
 
-ggsave("output/fobts_by_stp_log_scale.png", fobts_by_stp_log_10, width = 24, height = 24)
+ggsave("output/fobts_by_stp.png", fobts_by_stp, width = 24, height = 24)
 
 fobt_cat <- input %>% 
   filter(!is.na(fobt_date)) %>% 
@@ -89,5 +87,14 @@ fobt_cat <- input %>%
 
 ggsave("output/fobts_by_stp_cat.png", fobt_cat, width = 24, height = 24)
 
+fobt_fit_cat <- input %>% 
+  filter(!is.na(fobt_date)) %>% 
+  count(stp, has_fit = coalesce(fobt_date == qfit_date, FALSE), fobt) %>%
+  ggplot(aes(fobt, n, fill = has_fit)) +
+  geom_col(position = "stack") +
+  facet_wrap(quos(stp), scales = "free") +
+  coord_flip()
+
+ggsave("output/fobts_by_stp_cat_fit.png", fobt_fit_cat, width = 24, height = 24)
 
 # write_csv(as.data.frame(table(input$qfit)), "output/summary_qfit_values.csv")

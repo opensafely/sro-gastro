@@ -17,8 +17,9 @@ actions:
     outputs:
       moderately_sensitive:
         count_by_stp: output/qfit_by_stp.csv
-        qfits_by_stp_log: output/qfits_by_stp_log_scale.png
-        fobts_by_stp_log: output/fobts_by_stp_log_scale.png
+        qfits_by_stp: output/qfits_by_stp.png
+        fobts_by_stp: output/fobts_by_stp.png
         fobts_by_stp_cat: output/fobts_by_stp_cat.png
+        fobts_by_stp_cat_fit: output/fobts_by_stp_cat_fit.png
         qfits_by_stp_near_10: output/qfits_by_stp_near_10.png
         qfit_months_by_stp: output/qfit_months_by_stp.png
