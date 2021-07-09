@@ -9,7 +9,8 @@ input <- read_csv("output/input.csv", col_types = cols(.default = col_character(
   mutate(
     across(matches("^(qfit|ft.*|crc.*)_date$"), lubridate::ymd),
     across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
-    across(c(qfit, age, fobt_num), as.numeric)
+    across(c(qfit, age, fobt_num), as.numeric),
+    qfit_pos = qfit > 10
   )
 
 # Counts of qFIT by STP
@@ -21,14 +22,19 @@ input %>%
     female = sum(sex == "F"),
     had_qfit = sum(!is.na(qfit_date)),
     qfit_result = med_iqr(qfit[!is.na(qfit_date)]),
+    qfit_gt_10 = sum(qfit > 10, na.rm = TRUE),
     had_ft_colorectal_referral = sum(ft_referral, na.rm = TRUE),
     had_ft_colorectal_clinic = sum(ft_clinic, na.rm = TRUE),
+    had_colonoscopy = sum(!is.na(colonoscopy_sus)),
+    had_flexi_sig = sum(!is.na(flexi_sig_sus)),
     had_crc_diagnosis = sum(crc_diagnosis, na.rm = TRUE),
-    referral_if_qfit_ge10 = sum(!is.na(ft_referral_date[qfit >= 10 & !is.na(qfit_date)])),
-    referral_if_qfit_lt10 = sum(!is.na(ft_referral_date[qfit < 10 & !is.na(qfit_date)])),
+    referral_if_qfit_gt10 = sum(!is.na(ft_referral_date[qfit > 10 & !is.na(qfit_date)])),
+    referral_if_qfit_le10 = sum(!is.na(ft_referral_date[qfit <= 10 & !is.na(qfit_date)])),
     referral_if_qfit_not_done = sum(!is.na(ft_referral_date[is.na(qfit_date)])),
     qfit_referral_timing = med_iqr((qfit_date %--% ft_referral_date) / ddays(1), na.rm = TRUE),
     qfit_clinic_timing = med_iqr((qfit_date %--% ft_clinic_date) / ddays(1), na.rm = TRUE),
+    qfit_colonoscopy_timing = med_iqr((qfit_date %--% colonoscopy_sus) / ddays(1), na.rm = TRUE),
+    qfit_flexi_sig_timing = med_iqr((qfit_date %--% flexi_sig_sus) / ddays(1), na.rm = TRUE),
     qfit_diagnosis_timing = med_iqr((qfit_date %--% crc_diagnosis_date) / ddays(1), na.rm = TRUE),
     qfit_age = med_iqr(age[!is.na(qfit_date)]),
     qfit_female = sum(sex[!is.na(qfit_date)] == "F"),

@@ -52,3 +52,15 @@ colonoscopy_codes = codelist_from_csv(
   system="snomed",
   column="code"
 )
+
+opcs4_flexi_sig_codes = codelist_from_csv(
+  "codelists-opcs4/opcs4-flexible-sigmoidoscopy.csv",
+  system="opcs4",
+  column="code"
+)
+
+opcs4_colonoscopy_codes = codelist_from_csv(
+  "codelists-opcs4/opcs4-colonoscopy.csv",
+  system="opcs4",
+  column="code"
+)
