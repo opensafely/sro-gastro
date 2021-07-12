@@ -23,3 +23,10 @@ actions:
         fobts_by_stp_cat_fit: output/fobts_by_stp_cat_fit.png
         qfits_by_stp_near_10: output/qfits_by_stp_near_10.png
         qfit_months_by_stp: output/qfit_months_by_stp.png
+  
+  qfit_rmarkdown:
+    run: r:latest -e 'rmarkdown::render("analysis/qfit_analysis.Rmd", output_dir = "output")'
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        qfit_html: output/qfit_analysis.html
