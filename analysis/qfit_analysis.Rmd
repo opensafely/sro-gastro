@@ -53,7 +53,8 @@ first_table(
   .options = ft_options,
   .column_variable = stp,
   !!!qfit_rows
-)
+) %>% 
+  as.data.frame()
 ```
 
 ## Restricted to <50 years old
@@ -64,7 +65,8 @@ first_table(
   .options = ft_options,
   .column_variable = stp,
   !!!qfit_rows
-)
+) %>% 
+  as.data.frame()
 ```
 
 ## Restricted to >=50 years old
@@ -75,5 +77,6 @@ first_table(
   .options = ft_options,
   .column_variable = stp,
   !!!qfit_rows
-)
+) %>% 
+  as.data.frame()
 ```
