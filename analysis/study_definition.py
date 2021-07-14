@@ -47,7 +47,7 @@ study = StudyDefinition(
         returning="stp_code",
         return_expectations={
             "rate": "universal",
-            "category": {"ratios": {"STP1": 0.5, "STP2": 0.5}},
+            "category": {"ratios": {"E54000005": 0.5, "E54000006": 0.5}},
         },
     ),
     qfit=patients.with_these_clinical_events(

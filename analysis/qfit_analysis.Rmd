@@ -19,9 +19,17 @@ library(lubridate)
 library(rlang)
 source("sro_gastro_functions.R")
 walk(list.files("firsttable/R", full.names = TRUE), source)
+flip_first_table <- function(x) {
+  x %>% as.data.frame() %>%
+    select(-Level) %>%
+    column_to_rownames("Variable") %>%
+    t() %>%
+    as.data.frame()
+}
 ```
 
 ```{r load data}
+stp_codes <- read_csv("stp_codes.csv")
 input <- read_csv("../output/input.csv", col_types = cols(.default = col_character())) %>% 
   mutate(
     across(matches("^(qfit|ft.*|crc.*)_date$"), lubridate::ymd),
@@ -29,7 +37,8 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
     across(c(qfit, age, fobt_num), as.numeric),
     qfit = if_else(is.na(qfit_date), NA_real_, qfit),
     qfit_pos = qfit > 10,
-  )
+  ) %>% 
+  left_join(stp_codes, by = "stp")
 ```
 
 # Top level summary by STP
@@ -46,15 +55,25 @@ qfit_rows <- quos(
   "Age if qFIT pos" = first_table_row(age, data_filter = qfit_pos),
   "Colorectal cancer" = crc_diagnosis,
   "Colorectal cancer if qFIT <= 10" = first_table_row(crc_diagnosis, data_filter = !qfit_pos),
-  "Colorectal cancer if qFIT > 10" = first_table_row(crc_diagnosis, data_filter = qfit_pos)
+  "Colorectal cancer if qFIT > 10" = first_table_row(crc_diagnosis, data_filter = qfit_pos),
+  "FT referral" = ft_referral,
+  "Colonoscopy" = !is.na(colonoscopy_sus),
+  "Flexi sig" = !is.na(flexi_sig_sus),
+  "Referral qFIT <= 10" = first_table_row(ft_referral, data_filter = !qfit_pos),
+  "Referral qFIT > 10" = first_table_row(ft_referral, data_filter = qfit_pos),
+  "Referral no qFIT" = first_table_row(ft_referral, data_filter = is.na(qfit_pos)),
+  "qFIT refl timing" = (qfit_date %--% ft_referral_date) / ddays(1),
+  "qFIT cscopy timing" = (qfit_date %--% colonoscopy_sus) / ddays(1),
+  "qFIT flexi timing" = (qfit_date %--% flexi_sig_sus) / ddays(1),
+  "qFIT diagnosis timing" = (qfit_date %--% crc_diagnosis_date) / ddays(1)
 )
 first_table(
   input,
   .options = ft_options,
-  .column_variable = stp,
+  .column_variable = stp_name,
   !!!qfit_rows
 ) %>% 
-  as.data.frame()
+  flip_first_table()
 ```
 
 ## Restricted to <50 years old
@@ -63,10 +82,10 @@ first_table(
 first_table(
   input %>% filter(age < 50),
   .options = ft_options,
-  .column_variable = stp,
+  .column_variable = stp_name,
   !!!qfit_rows
 ) %>% 
-  as.data.frame()
+  flip_first_table()
 ```
 
 ## Restricted to >=50 years old
@@ -75,8 +94,43 @@ first_table(
 first_table(
   input %>% filter(age >= 50),
   .options = ft_options,
-  .column_variable = stp,
+  .column_variable = stp_name,
   !!!qfit_rows
 ) %>% 
-  as.data.frame()
+  flip_first_table()
+```
+
+## Further data on qFIT by STP
+
+```{r}
+input %>%
+  group_by(stp_name) %>% 
+  summarise(
+    n_people = n(),
+    age_overall = med_iqr(age),
+    female = sum(sex == "F"),
+    had_qfit = sum(!is.na(qfit_date)),
+    qfit_result = med_iqr(qfit[!is.na(qfit_date)]),
+    qfit_gt_10 = sum(qfit > 10, na.rm = TRUE),
+    had_ft_colorectal_referral = sum(ft_referral, na.rm = TRUE),
+    had_ft_colorectal_clinic = sum(ft_clinic, na.rm = TRUE),
+    had_colonoscopy = sum(!is.na(colonoscopy_sus)),
+    had_flexi_sig = sum(!is.na(flexi_sig_sus)),
+    had_crc_diagnosis = sum(crc_diagnosis, na.rm = TRUE),
+    referral_if_qfit_gt10 = sum(!is.na(ft_referral_date[qfit > 10 & !is.na(qfit_date)])),
+    referral_if_qfit_le10 = sum(!is.na(ft_referral_date[qfit <= 10 & !is.na(qfit_date)])),
+    referral_if_qfit_not_done = sum(!is.na(ft_referral_date[is.na(qfit_date)])),
+    qfit_referral_timing = med_iqr((qfit_date %--% ft_referral_date) / ddays(1), na.rm = TRUE),
+    qfit_clinic_timing = med_iqr((qfit_date %--% ft_clinic_date) / ddays(1), na.rm = TRUE),
+    qfit_colonoscopy_timing = med_iqr((qfit_date %--% colonoscopy_sus) / ddays(1), na.rm = TRUE),
+    qfit_flexi_sig_timing = med_iqr((qfit_date %--% flexi_sig_sus) / ddays(1), na.rm = TRUE),
+    qfit_diagnosis_timing = med_iqr((qfit_date %--% crc_diagnosis_date) / ddays(1), na.rm = TRUE),
+    qfit_age = med_iqr(age[!is.na(qfit_date)]),
+    qfit_female = sum(sex[!is.na(qfit_date)] == "F"),
+    top_four_fit_values = table(round(qfit[!is.na(qfit_date)], 0)) %>%
+      sort(decreasing = TRUE) %>%
+      head(4) %>% 
+      sprintf("%s:%d", names(.), .) %>%
+      paste(collapse = "; ")
+  )
 ```
