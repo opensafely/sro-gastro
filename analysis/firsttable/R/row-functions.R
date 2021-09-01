@@ -77,6 +77,9 @@ med_iqr <- function(row_item, col_item, digits, na.rm, ft_options) {
     na.rm = na.rm
   )
   quartiles <- simplify2array(quartiles)
+  if (!is.null(ft_options$suppress_if_le) && ft_options$suppress_if_le > 0) {
+    quartiles[, vapply(num_data, function(x) sum(!is.na(x)), integer(1)) <= ft_options$suppress_if_le] <- NA
+  }
   out <- sprintf(
     "%2$.*1$f (%3$.*1$f - %4$.*1$f)",
     digits,
@@ -277,7 +280,8 @@ fisher_row <- function(data_item,
           reference_level = reference_level,
           cat_out_of_row = cat_out_of_row,
           include_overall_column = ft_options$include_overall_column,
-          hide_level_logical = ft_options$hide_level_logical
+          hide_level_logical = ft_options$hide_level_logical,
+          suppress_if_le = ft_options$suppress_if_le
         )
       list(
         row_output = output,
@@ -360,7 +364,8 @@ chisq_row <- function(data_item,
           include_reference = include_reference,
           reference_level = reference_level,
           include_overall_column = ft_options$include_overall_column,
-          hide_level_logical = ft_options$hide_level_logical
+          hide_level_logical = ft_options$hide_level_logical,
+          suppress_if_le = ft_options$suppress_if_le
         )
       list(
         row_output = output,
@@ -387,9 +392,27 @@ n_percent <- function(tab,
            reference_level,
            cat_out_of_row,
            include_overall_column,
-           hide_level_logical) {
+           hide_level_logical,
+           suppress_if_le) {
+  if (!is.null(suppress_if_le) && suppress_if_le > 0) {
+    suppress_cells <- tab <= suppress_if_le & tab > 0
+    if (any(rowSums(suppress_cells) == 1) & ncol(suppress_cells) > 1) {
+      col_order_by_row <- t(apply(tab, 1, function(x) order(x) / (x > 0)))
+      col_order_by_row[rowSums(suppress_cells) != 1, ] <- 0
+      suppress_cells[col_order_by_row == 2] <- TRUE
+    }
+    if (any(colSums(suppress_cells) == 1) & nrow(suppress_cells) > 1) {
+      row_order_by_col <- apply(tab, 2, function(x) order(x) / (x > 0))
+      row_order_by_col[, colSums(suppress_cells) != 1] <- 0
+      suppress_cells[row_order_by_col == 2] <- TRUE
+    }
+  } else {
+    suppress_cells <- tab
+    suppress_cells[] <- TRUE
+  }
   if (include_overall_column) {
     tab_display <- cbind(tab, rowSums(tab))
+    suppress_cells <- cbind(suppress_cells, FALSE)
   } else {
     tab_display <- tab
   }
@@ -398,6 +421,7 @@ n_percent <- function(tab,
   } else {
     totals <- rep(colSums(tab_display, na.rm = na.rm), each = nrow(tab))
   }
+  tab_display[suppress_cells] <- NA_integer_
   pattern <- "%2$d"
   if (include_denom) {
     pattern <- paste0(pattern, "/%4$d")

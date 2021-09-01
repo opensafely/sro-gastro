@@ -41,6 +41,9 @@
 #' @param hide_level_logical hide the display of the level TRUE for logical rows
 #' @param use_interpuncts replaces decimal points with interpuncts;
 #'   most commonly used for Lancet journals
+#' @param suppress_if_le suppress cells that are non-zero and less than or equal to
+#'   a threshold as well as the next smallest cell if there is only one; done for
+#'   statistical disclosure control
 #'
 #' @export
 first_table_options <- function(
@@ -71,7 +74,8 @@ first_table_options <- function(
   cat_out_of_row = FALSE,
   include_overall_column = FALSE,
   hide_level_logical = FALSE,
-  use_interpuncts = FALSE
+  use_interpuncts = FALSE,
+  suppress_if_le = FALSE
 ) {
   if (!is.null(template)) {
     out <- template

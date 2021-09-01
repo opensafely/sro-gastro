@@ -42,7 +42,7 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
 # Top level summary by region
 
 ```{r}
-ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE)
+ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = 5)
 qfit_rows <- quos(
   "qFIT done" = !is.na(qfit_date),
   "qFIT > 0" = qfit > 0,
