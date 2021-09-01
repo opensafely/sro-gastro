@@ -397,12 +397,12 @@ n_percent <- function(tab,
   if (!is.null(suppress_if_le) && suppress_if_le > 0) {
     suppress_cells <- tab <= suppress_if_le & tab > 0
     if (any(rowSums(suppress_cells) == 1) & ncol(suppress_cells) > 1) {
-      col_order_by_row <- t(apply(tab, 1, function(x) order(x) / (x > 0)))
+      col_order_by_row <- t(apply(tab, 1, function(x) order(x / (x > 0))))
       col_order_by_row[rowSums(suppress_cells) != 1, ] <- 0
       suppress_cells[col_order_by_row == 2] <- TRUE
     }
     if (any(colSums(suppress_cells) == 1) & nrow(suppress_cells) > 1) {
-      row_order_by_col <- apply(tab, 2, function(x) order(x) / (x > 0))
+      row_order_by_col <- apply(tab, 2, function(x) order(x / (x > 0)))
       row_order_by_col[, colSums(suppress_cells) != 1] <- 0
       suppress_cells[row_order_by_col == 2] <- TRUE
     }
