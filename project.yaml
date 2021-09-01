@@ -16,13 +16,13 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        count_by_stp: output/qfit_by_stp.csv
-        qfits_by_stp: output/qfits_by_stp.png
-        fobts_by_stp: output/fobts_by_stp.png
-        fobts_by_stp_cat: output/fobts_by_stp_cat.png
-        fobts_by_stp_cat_fit: output/fobts_by_stp_cat_fit.png
-        qfits_by_stp_near_10: output/qfits_by_stp_near_10.png
-        qfit_months_by_stp: output/qfit_months_by_stp.png
+        count_by_region: output/qfit_by_region.csv
+        qfits_by_region: output/qfits_by_region.png
+        fobts_by_region: output/fobts_by_region.png
+        fobts_by_region_cat: output/fobts_by_region_cat.png
+        fobts_by_region_cat_fit: output/fobts_by_region_cat_fit.png
+        qfits_by_region_near_10: output/qfits_by_region_near_10.png
+        qfit_months_by_region: output/qfit_months_by_region.png
   
   qfit_rmarkdown:
     run: r:latest -e 'rmarkdown::render("analysis/qfit_analysis.Rmd", output_dir = "output")'
