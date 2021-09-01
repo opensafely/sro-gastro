@@ -50,6 +50,14 @@ study = StudyDefinition(
             "category": {"ratios": {"E54000005": 0.5, "E54000006": 0.5}},
         },
     ),
+    region=patients.registered_practice_as_of(
+        "2020-04-17",
+        returning="nuts1_region_name",
+        return_expectations={
+            "rate": "universal",
+            "category": {"ratios": {"North East": 0.5, "North West": 0.5}},
+        },
+    ),
     qfit=patients.with_these_clinical_events(
         qfit_codes,
         find_first_match_in_period=True,

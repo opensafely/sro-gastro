@@ -13,9 +13,9 @@ input <- read_csv("output/input.csv", col_types = cols(.default = col_character(
     qfit_pos = qfit > 10
   )
 
-# Counts of qFIT by STP
+# Counts of qFIT by region
 input %>%
-  group_by(stp) %>% 
+  group_by(region) %>% 
   summarise(
     n_people = n(),
     age_overall = med_iqr(age),
@@ -44,63 +44,63 @@ input %>%
       sprintf("%s:%d", names(.), .) %>%
       paste(collapse = "; ")
   ) %>% 
-  write_csv("output/qfit_by_stp.csv")
+  write_csv("output/qfit_by_region.csv")
 
-qfits_by_stp <- input %>% 
+qfits_by_region <- input %>% 
   filter(!is.na(qfit_date)) %>% 
-  count(stp, qfit = round(qfit)) %>%
+  count(region, qfit = round(qfit)) %>%
   ggplot(aes(qfit, n)) +
   geom_col(fill = "dark blue") +
-  facet_wrap(quos(stp), scales = "free")
+  facet_wrap(quos(region), scales = "free")
 
-ggsave("output/qfits_by_stp.png", qfits_by_stp, width = 24, height = 24)
+ggsave("output/qfits_by_region.png", qfits_by_region, width = 24, height = 24)
 
-qfits_by_stp_near_10 <- input %>% 
+qfits_by_region_near_10 <- input %>% 
   filter(!is.na(qfit_date)) %>% 
-  count(stp, qfit = round(qfit)) %>%
+  count(region, qfit = round(qfit)) %>%
   ggplot(aes(qfit, n)) +
   geom_col(fill = "dark blue") +
   xlim(c(5, 15)) +
-  facet_wrap(quos(stp), scales = "free")
+  facet_wrap(quos(region), scales = "free")
 
-ggsave("output/qfits_by_stp_near_10.png", qfits_by_stp_near_10, width = 24, height = 24)
+ggsave("output/qfits_by_region_near_10.png", qfits_by_region_near_10, width = 24, height = 24)
 
-qfit_months_by_stp <- input %>% 
+qfit_months_by_region <- input %>% 
   filter(!is.na(qfit_date)) %>% 
-  count(stp, qfit_month = floor_date(qfit_date, "months")) %>% 
+  count(region, qfit_month = floor_date(qfit_date, "months")) %>% 
   ggplot(aes(qfit_month, n)) +
   geom_col(fill = "dark blue") +
-  facet_wrap(quos(stp), scales = "free")
+  facet_wrap(quos(region), scales = "free")
 
-ggsave("output/qfit_months_by_stp.png", qfit_months_by_stp, width = 24, height = 24)
+ggsave("output/qfit_months_by_region.png", qfit_months_by_region, width = 24, height = 24)
 
-fobts_by_stp <- input %>% 
+fobts_by_region <- input %>% 
   filter(!is.na(fobt_num_date)) %>% 
-  count(stp, fobt_num = round(fobt_num)) %>%
+  count(region, fobt_num = round(fobt_num)) %>%
   ggplot(aes(fobt_num, n)) +
   geom_col(fill = "dark blue") +
-  facet_wrap(quos(stp), scales = "free")
+  facet_wrap(quos(region), scales = "free")
 
-ggsave("output/fobts_by_stp.png", fobts_by_stp, width = 24, height = 24)
+ggsave("output/fobts_by_region.png", fobts_by_region, width = 24, height = 24)
 
 fobt_cat <- input %>% 
   filter(!is.na(fobt_date)) %>% 
-  count(stp, fobt) %>%
+  count(region, fobt) %>%
   ggplot(aes(fobt, n)) +
   geom_col(fill = "dark blue") +
-  facet_wrap(quos(stp), scales = "free") +
+  facet_wrap(quos(region), scales = "free") +
   coord_flip()
 
-ggsave("output/fobts_by_stp_cat.png", fobt_cat, width = 24, height = 24)
+ggsave("output/fobts_by_region_cat.png", fobt_cat, width = 24, height = 24)
 
 fobt_fit_cat <- input %>% 
   filter(!is.na(fobt_date)) %>% 
-  count(stp, has_fit = coalesce(fobt_date == qfit_date, FALSE), fobt) %>%
+  count(region, has_fit = coalesce(fobt_date == qfit_date, FALSE), fobt) %>%
   ggplot(aes(fobt, n, fill = has_fit)) +
   geom_col(position = "stack") +
-  facet_wrap(quos(stp), scales = "free") +
+  facet_wrap(quos(region), scales = "free") +
   coord_flip()
 
-ggsave("output/fobts_by_stp_cat_fit.png", fobt_fit_cat, width = 24, height = 24)
+ggsave("output/fobts_by_region_cat_fit.png", fobt_fit_cat, width = 24, height = 24)
 
 # write_csv(as.data.frame(table(input$qfit)), "output/summary_qfit_values.csv")
