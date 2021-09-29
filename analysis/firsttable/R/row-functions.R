@@ -422,6 +422,9 @@ n_percent <- function(tab,
     totals <- rep(colSums(tab_display, na.rm = na.rm), each = nrow(tab))
   }
   tab_display[suppress_cells] <- NA_integer_
+  if (!is.null(suppress_if_le) && suppress_if_le > 0) {
+    totals[totals <= suppress_if_le] <- NA_integer_
+  }
   pattern <- "%2$d"
   if (include_denom) {
     pattern <- paste0(pattern, "/%4$d")
