@@ -41,6 +41,6 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
 table(input$qfit_comp, input$region, useNA = "ifany")
 table(input$qfit_ref_lower, input$region)
 table(input$qfit_ref_lower, input$region)
-table(input$qfit, input$qfit_comp, input$region)
+input %>% filter(!is.na(qfit_comp)) %>% with(table(qfit, qfit_comp, input$region))
 tapply(input$qfit_num, input$region, summary)
 ```
