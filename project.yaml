@@ -37,3 +37,10 @@ actions:
     outputs:
       moderately_sensitive:
         qfit_html: output/qfit_analysis_region.html
+
+  qfit_check_new_data:
+    run: r:latest -e 'rmarkdown::render("analysis/check_new_fit_data.Rmd", output_dir = "output")'
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        qfit_html: output/check_new_fit_data.html
