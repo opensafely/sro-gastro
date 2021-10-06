@@ -1,7 +1,7 @@
 ---
 title: "qFIT OpenSafely analysis"
 author: "Nick Kennedy"
-date: "12/07/2021"
+date: "06/10/2021"
 output:
   html_document:
       toc: true
@@ -48,6 +48,8 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
       TRUE ~ NA
     )
   )
+cat("Data last updated at ", as.character(file.mtime("../output/input.csv")), "\n", sep = "")
+cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
 ```
 
 # Top level summary by region
