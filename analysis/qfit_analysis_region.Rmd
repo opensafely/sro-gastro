@@ -39,7 +39,7 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
       case_when(
         qfit_comp == "<" ~ -1,
         qfit_comp == ">" ~  1,
-        TRUE             ~  0
+        qfit_comp == "=" ~  0
       ),
     qfit_pos = qfit >= 10,
   )
