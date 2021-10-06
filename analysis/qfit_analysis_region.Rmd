@@ -34,14 +34,19 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
     across(matches("^(qfit|ft.*|crc.*)_date$"), lubridate::ymd),
     across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
     across(c(qfit, age, fobt_num), as.numeric),
-    qfit_orig = qfit,
-    qfit = if_else(is.na(qfit_date), NA_real_, qfit) +
+    qfit_orig = if_else(is.na(qfit_date), NA_real_, qfit),
+    qfit = qfit +
       case_when(
         qfit_comp == "<" ~ -1,
         qfit_comp == ">" ~  1,
         qfit_comp == "=" ~  0
       ),
     qfit_pos = qfit >= 10,
+    qfit_pos_assume_zero_neg = case_when(
+      !is.na(qfit) ~ qfit >= 10,
+      qfit_orig == 0 ~ FALSE,
+      TRUE ~ NA
+    )
   )
 ```
 
@@ -50,11 +55,13 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
 ```{r}
 ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = 5)
 qfit_rows <- quos(
-  "qFIT done" = !is.na(qfit_date),
+  "qFIT done and included here" = !is.na(qfit),
+  "qFIT == 0 (including those with missing comparator)" = qfit_orig == 0,
+  "qFIT == 0 (excluding those with missing comparator)" = first_table_row(qfit_orig == 0, data_filter = !is.na(qfit_comp)),
   "qFIT > 0" = qfit > 0,
-  "qFIT > 10" = qfit_pos,
+  "qFIT >= 10" = qfit_pos,
   "Age" = age,
-  "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit_date)),
+  "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit)),
   "Age if qFIT neg" = first_table_row(age, data_filter = !qfit_pos),
   "Age if qFIT pos" = first_table_row(age, data_filter = qfit_pos),
   "Colorectal cancer" = crc_diagnosis,
@@ -66,10 +73,10 @@ qfit_rows <- quos(
   "Referral qFIT <= 10" = first_table_row(ft_referral, data_filter = !qfit_pos),
   "Referral qFIT > 10" = first_table_row(ft_referral, data_filter = qfit_pos),
   "Referral no qFIT" = first_table_row(ft_referral, data_filter = is.na(qfit_pos)),
-  "qFIT refl timing" = (qfit_date %--% ft_referral_date) / ddays(1),
-  "qFIT cscopy timing" = (qfit_date %--% colonoscopy_sus) / ddays(1),
-  "qFIT flexi timing" = (qfit_date %--% flexi_sig_sus) / ddays(1),
-  "qFIT diagnosis timing" = (qfit_date %--% crc_diagnosis_date) / ddays(1)
+  "qFIT refl timing" = first_table_row((qfit_date %--% ft_referral_date) / ddays(1), data_filter = !is.na(qfit)),
+  "qFIT cscopy timing" = first_table_row((qfit_date %--% colonoscopy_sus) / ddays(1), data_filter = !is.na(qfit)),
+  "qFIT flexi timing" = first_table_row((qfit_date %--% flexi_sig_sus) / ddays(1), data_filter = !is.na(qfit)),
+  "qFIT diagnosis timing" = first_table_row((qfit_date %--% crc_diagnosis_date) / ddays(1), data_filter = !is.na(qfit))
 )
 first_table(
   input,
@@ -97,6 +104,18 @@ first_table(
 ```{r}
 first_table(
   input %>% filter(age >= 50),
+  .options = ft_options,
+  .column_variable = region,
+  !!!qfit_rows
+) %>% 
+  flip_first_table()
+```
+
+## Top level summary by region (assuming zero is negative)
+
+```{r}
+first_table(
+  input %>% mutate(qfit = qfit_pos_assume_zero_neg),
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
