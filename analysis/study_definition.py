@@ -71,7 +71,7 @@ study = StudyDefinition(
             "incidence": 0.1,
         },
     ),
-    qfit_comp=patients.comparator_from("qfit", return_expectations={"category":{"ratios":{"<": 0.1, "": 0.9}}}),
+    qfit_comp=patients.comparator_from("qfit", return_expectations={"category":{"ratios":{"<": 0.1, "=": 0.9}}}),
     qfit_ref_lower=patients.reference_range_lower_bound_from(
         "qfit",
         return_expectations={"float": {"distribution": "normal", "mean": 0.0, "stddev": 0.0}}
