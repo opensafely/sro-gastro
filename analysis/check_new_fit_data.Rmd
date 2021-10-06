@@ -44,3 +44,12 @@ table(input$qfit_ref_lower, input$region)
 input %>% filter(qfit_comp %in% c("<", ">")) %>% with(table(qfit, qfit_comp, region))
 tapply(input$qfit_num, input$region, summary)
 ```
+
+```{r}
+input %>%
+  filter(!is.na(qfit_date), as.integer(qfit) == 0) %>% 
+  count(
+    region,
+    qfit_comp
+  )
+```
