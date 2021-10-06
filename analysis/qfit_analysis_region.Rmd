@@ -117,7 +117,7 @@ first_table(
 
 ```{r}
 first_table(
-  input %>% mutate(qfit = qfit_pos_assume_zero_neg),
+  input %>% mutate(qfit_pos = qfit_pos_assume_zero_neg),
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
