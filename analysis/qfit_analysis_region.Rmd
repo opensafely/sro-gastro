@@ -85,8 +85,7 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-) %>% 
-  flip_first_table()
+)
 ```
 
 ## Restricted to <50 years old
@@ -97,8 +96,7 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-) %>% 
-  flip_first_table()
+)
 ```
 
 ## Restricted to >=50 years old
@@ -109,8 +107,7 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-) %>% 
-  flip_first_table()
+)
 ```
 
 ## Top level summary by region (assuming zero is negative)
@@ -121,6 +118,5 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-) %>% 
-  flip_first_table()
+)
 ```
