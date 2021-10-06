@@ -26,6 +26,11 @@ flip_first_table <- function(x) {
     t() %>%
     as.data.frame()
 }
+print_ft <- function(x) {
+  x %>% 
+    select(-Level) %>% 
+    knitr::kable()
+}
 ```
 
 ```{r load data}
@@ -86,7 +91,7 @@ first_table(
   .column_variable = region,
   !!!qfit_rows
 ) %>% 
-  knitr::kable()
+  print_ft()
 ```
 
 ## Restricted to <50 years old
@@ -98,7 +103,7 @@ first_table(
   .column_variable = region,
   !!!qfit_rows
 ) %>% 
-  knitr::kable()
+  print_ft()
 ```
 
 ## Restricted to >=50 years old
@@ -110,7 +115,7 @@ first_table(
   .column_variable = region,
   !!!qfit_rows
 ) %>% 
-  knitr::kable()
+  print_ft()
 ```
 
 ## Top level summary by region (assuming zero is negative)
@@ -122,5 +127,5 @@ first_table(
   .column_variable = region,
   !!!qfit_rows
 ) %>% 
-  knitr::kable()
+  print_ft()
 ```
