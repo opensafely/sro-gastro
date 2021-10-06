@@ -85,7 +85,8 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-)
+) %>% 
+  knitr::kable()
 ```
 
 ## Restricted to <50 years old
@@ -96,7 +97,8 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-)
+) %>% 
+  knitr::kable()
 ```
 
 ## Restricted to >=50 years old
@@ -107,7 +109,8 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-)
+) %>% 
+  knitr::kable()
 ```
 
 ## Top level summary by region (assuming zero is negative)
@@ -118,5 +121,6 @@ first_table(
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
-)
+) %>% 
+  knitr::kable()
 ```
