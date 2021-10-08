@@ -96,18 +96,6 @@ first_table(
   print_ft()
 ```
 
-## Restricted to <50 years old
-
-```{r}
-first_table(
-  input %>% filter(age < 50),
-  .options = ft_options,
-  .column_variable = region,
-  !!!qfit_rows
-) %>% 
-  print_ft()
-```
-
 ## Restricted to >=50 years old
 
 ```{r}
