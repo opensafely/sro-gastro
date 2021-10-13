@@ -61,15 +61,18 @@ cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
 
 ```{r}
 ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = 5)
-qfit_rows <- quos(
+qfit_overall_rows <- quos(
   "qFIT done and included here" = !is.na(qfit),
+  "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit)),
+  "Age if qFIT neg" = first_table_row(age, data_filter = !qfit_pos),
+  "Age if qFIT pos" = first_table_row(age, data_filter = qfit_pos)
+)
+qfit_rows <- quos(
+  !!!qfit_overall_rows,
   "qFIT == 0 (including those with missing comparator)" = qfit_orig == 0,
   "qFIT == 0 (excluding those with missing comparator)" = first_table_row(qfit_orig == 0, data_filter = !is.na(qfit_comp)),
   "qFIT >= 10" = qfit_pos,
   "Age" = age,
-  "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit)),
-  "Age if qFIT neg" = first_table_row(age, data_filter = !qfit_pos),
-  "Age if qFIT pos" = first_table_row(age, data_filter = qfit_pos),
   "Colorectal cancer" = crc_diagnosis,
   "Colorectal cancer if qFIT < 10" = first_table_row(crc_diagnosis, data_filter = !qfit_pos),
   "Colorectal cancer if qFIT >= 10" = first_table_row(crc_diagnosis, data_filter = qfit_pos),
@@ -91,12 +94,12 @@ first_table(
   input,
   .options = ft_options,
   .column_variable = region,
-  !!!qfit_rows
+  !!!qfit_overall_rows
 ) %>% 
   print_ft()
 ```
 
-## Restricted to >=50 years old
+## Main analysis, restricted to >=50 years old
 
 ```{r}
 first_table(
@@ -108,7 +111,7 @@ first_table(
   print_ft()
 ```
 
-## Top level summary by region (assuming zero is negative)
+## Main analysis, >= 50 years old and assuming zero is negative (not missing)
 
 ```{r}
 first_table(
