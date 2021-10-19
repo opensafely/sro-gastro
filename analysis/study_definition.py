@@ -146,7 +146,20 @@ study = StudyDefinition(
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
+            "incidence": 0.1,
+        },
+    ),
+    
+    colonoscopy_primary_care=patients.with_these_clinical_events(
+        colonoscopy_codes,
+        find_first_match_in_period=True,
+        between=["2020-04-17", "2021-04-30"],
+        returning="binary_flag",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
             "incidence": 0.1,
         },
     ),
@@ -157,7 +170,7 @@ study = StudyDefinition(
         returning="date_admitted",
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
             "incidence": 0.1,
         },
         with_these_procedures=opcs4_colonoscopy_codes
@@ -168,11 +181,24 @@ study = StudyDefinition(
         between=["2020-04-17", "2021-04-30"],
         returning="primary_diagnosis",
         return_expectations={
-            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
             "incidence": 0.1,
             "category": {"ratios": {"123": 0.5, "124": 0.5}}
         },
         with_these_procedures=opcs4_colonoscopy_codes
+    ),
+    
+    flexi_sig_primary_care=patients.with_these_clinical_events(
+        flexi_sig_codes,
+        find_first_match_in_period=True,
+        between=["2020-04-17", "2021-04-30"],
+        returning="binary_flag",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
+            "incidence": 0.1,
+        },
     ),
 
     flexi_sig_sus=patients.admitted_to_hospital(

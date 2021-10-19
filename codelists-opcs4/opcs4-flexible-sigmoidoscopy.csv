@@ -1,4 +1,24 @@
 code,term
 H23,Endoscopic extirpation of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.1,Endoscopic snare resection of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.2,Endoscopic cauterisation of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.3,Endoscopic laser destruction of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.4,Endoscopic destruction of lesion of lower bowel using fibreoptic sigmoidoscope NEC
+H23.5,Endoscopic submucosal resection of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.6,Endoscopic resection of lesion of lower bowel using fibreoptic sigmoidoscope NEC
+H23.7,Endoscopic mucosal resection of lesion of lower bowel using fibreoptic sigmoidoscope
+H23.8,Other specified
+H23.9,Unspecified
 H24,Other therapeutic endoscopic operations on lower bowel using fibreoptic sigmoidoscope
+H24.1,Endoscopic dilation of lower bowel using fibreoptic sigmoidoscope
+H24.2,Endoscopic coagulation of blood vessel of lower bowel using fibreoptic sigmoidoscope
+H24.3,Endoscopic insertion of tubal prosthesis into lower bowel using fibreoptic sigmoidoscope
+H24.4,Endoscopic insertion of expanding metal stent into lower bowel using fibreoptic sigmoidoscope
+H24.5,Endoscopic decompression of lower bowel using fibreoptic sigmoidoscope
+H24.8,Other specified
+H24.9,Unspecified
 H25,Diagnostic endoscopic examination of lower bowel using fibreoptic sigmoidoscope
+H25.1,Diagnostic endoscopic examination of lower bowel and biopsy of lesion of lower bowel using fibreoptic sigmoidoscope
+H25.2,Diagnostic endoscopic examination of lower bowel and sampling for bacterial overgrowth using fibreoptic sigmoidoscope
+H25.8,Other specified
+H25.9,Unspecified

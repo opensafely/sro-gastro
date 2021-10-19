@@ -1,4 +1,23 @@
 code,term
 H20,Endoscopic extirpation of lesion of colon
+H20.1,Fibreoptic endoscopic snare resection of lesion of colon
+H20.2,Fibreoptic endoscopic cauterisation of lesion of colon
+H20.3,Fibreoptic endoscopic laser destruction of lesion of colon
+H20.4,Fibreoptic endoscopic destruction of lesion of colon NEC
+H20.5,Fibreoptic endoscopic submucosal resection of lesion of colon
+H20.6,Fibreoptic endoscopic resection of lesion of colon NEC
+H20.7,Fibreoptic endoscopic mucosal resection of lesion of colon
+H20.8,Other specified
+H20.9,Unspecified
 H21,Other therapeutic endoscopic operations on colon
+H21.1,Fibreoptic endoscopic dilation of colon
+H21.2,Fibreoptic endoscopic coagulation of blood vessel of colon
+H21.3,Fibreoptic endoscopic removal of foreign body from colon
+H21.4,Fibreoptic endoscopic insertion of expanding metal stent into colon
+H21.5,Fibreoptic endoscopic decompression of colon
+H21.8,Other specified
+H21.9,Unspecified
 H22,Diagnostic endoscopic examination of colon
+H22.1,Diagnostic fibreoptic endoscopic examination of colon and biopsy of lesion of colon NCCS 
+H22.8,Other specified
+H22.9,Unspecified
