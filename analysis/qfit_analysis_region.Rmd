@@ -61,7 +61,7 @@ primary_data <- input %>%
   mutate(
     across(
       starts_with("qfit"),
-      ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x + 1)]) # Replace any qFIT data beyond end of 2020 with missing values
+      ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with missing values
     )
   )
 cat("Data last updated at ", as.character(file.mtime("../output/input.csv")), "\n", sep = "")
@@ -163,13 +163,14 @@ first_table(
 
 ```{r}
 input %>%
+  filter(!is.na(qfit_date), age >= 50) %>% 
   count(region, month = floor_date(qfit_date, "month")) %>%
   arrange(region, month) %>%
   group_by(region) %>%
-  summarise(cum_num = cumsum(n)) %>%
+  mutate(cum_num = cumsum(n)) %>%
   inner_join(
-    input %>% count(region, name = "denom"),
-    by = "region")
+    input %>% filter(age >= 50) %>% count(region, name = "denom"),
+    by = "region"
   ) %>%
   mutate(cum_prop = cum_num / denom) %>%
   ggplot(aes(month, cum_prop, group = region, colour = region)) +
@@ -183,6 +184,6 @@ input %>%
 
 ```{r}
 primary_data %>%
-  count(region = primary_care = crc_diagnosis, seconday_care = !is.na(crc_admission_date)) %>%
+  count(region, primary_care = crc_diagnosis, seconday_care = !is.na(crc_admission_date)) %>%
   knitr::kable()
 ```
