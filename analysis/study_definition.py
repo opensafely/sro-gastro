@@ -61,13 +61,13 @@ study = StudyDefinition(
     qfit=patients.with_these_clinical_events(
         qfit_codes,
         find_first_match_in_period=True,
-        between=["2020-04-17", "2020-12-31"],
+        between=["2020-04-17", "2021-10-31"],
         returning="numeric_value",
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
             "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
-            "date": {"earliest": "2020-04-17", "latest": "2020-12-31"},
+            "date": {"earliest": "2020-04-17", "latest": "2021-10-31"},
             "incidence": 0.1,
         },
     ),
@@ -149,6 +149,18 @@ study = StudyDefinition(
             "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
             "incidence": 0.1,
         },
+    ),
+
+    crc_admission_date=patients.admitted_to_hospital(
+        find_first_match_in_period=True,
+        between=["2020-04-17", "2021-04-30"],
+        returning="date_admitted",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2020-04-17", "latest": "2021-04-30"},
+            "incidence": 0.1,
+        },
+        with_these_primary_diagnoses=crc_diagnosis_icd10_codes
     ),
     
     colonoscopy_primary_care=patients.with_these_clinical_events(
