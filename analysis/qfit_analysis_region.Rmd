@@ -55,7 +55,14 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
     earliest_colonoscopy = pmin(colonoscopy_primary_care, colonoscopy_sus, na.rm = TRUE) %>% 
       {if_else(is.finite(.), ., as.Date(NA))},
     earliest_flexi_sig = pmin(flexi_sig_primary_care, flexi_sig_sus, na.rm = TRUE) %>% 
-      {if_else(is.finite(.), ., as.Date(NA))},
+      {if_else(is.finite(.), ., as.Date(NA))}
+  )
+primary_data <- input %>%
+  mutate(
+    across(
+      starts_with("qfit"),
+      ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with missing values
+    )
   )
 cat("Data last updated at ", as.character(file.mtime("../output/input.csv")), "\n", sep = "")
 cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
@@ -118,7 +125,7 @@ qfit_rows <- quos(
   "qFIT diagnosis timing" = first_table_row((qfit_date %--% crc_diagnosis_date) / ddays(1), data_filter = !is.na(qfit))
 )
 first_table(
-  input,
+  primary_data,
   .options = ft_options,
   .column_variable = region,
   !!!qfit_overall_rows
@@ -130,7 +137,7 @@ first_table(
 
 ```{r}
 first_table(
-  input %>% filter(age >= 50),
+  primary_data %>% filter(age >= 50),
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
@@ -142,7 +149,7 @@ first_table(
 
 ```{r}
 first_table(
-  input %>%
+  primary_data %>%
     filter(age >= 50) %>% 
     mutate(qfit_pos = qfit_pos_assume_zero_neg),
   .options = ft_options,
@@ -150,4 +157,33 @@ first_table(
   !!!qfit_rows
 ) %>% 
   print_ft()
+```
+
+# Cumulative proportion of population having had a qFIT over time
+
+```{r}
+input %>%
+  filter(!is.na(qfit_date), age >= 50) %>% 
+  count(region, month = floor_date(qfit_date, "month")) %>%
+  arrange(region, month) %>%
+  group_by(region) %>%
+  mutate(cum_num = cumsum(n)) %>%
+  inner_join(
+    input %>% filter(age >= 50) %>% count(region, name = "denom"),
+    by = "region"
+  ) %>%
+  mutate(cum_prop = cum_num / denom) %>%
+  ggplot(aes(month, cum_prop, group = region, colour = region)) +
+  geom_line() +
+  geom_point() +
+  xlab("Month") +
+  ylab("Cumulative proportion")
+```
+
+# Comparison of primary and secondary care CRC diagnosis (based on secondary admissions)
+
+```{r}
+primary_data %>%
+  count(region, primary_care = crc_diagnosis, seconday_care = !is.na(crc_admission_date)) %>%
+  knitr::kable()
 ```

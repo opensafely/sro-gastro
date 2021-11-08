@@ -23,6 +23,12 @@ crc_diagnosis_codes = codelist_from_csv(
   column="code"
 )
 
+crc_diagnosis_icd10_codes = codelist_from_csv(
+  "codelists-icd10/icd10-colorectal-cancer.csv",
+  system="icd10",
+  column="code"
+)
+
 ft_colorectal_referral_codes = codelist_from_csv(
   "codelists/user-NikNakk-fast-track-colorectal-cancer-referral.csv",
   system="snomed",
