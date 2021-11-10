@@ -34,6 +34,7 @@ print_ft <- function(x) {
 ```
 
 ```{r load data}
+start_date <- ymd("2020-04-17")
 input <- read_csv("../output/input.csv", col_types = cols(.default = col_character())) %>% 
   mutate(
     across(c(matches("^(qfit|ft.*|crc.*|earliest.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
@@ -56,7 +57,8 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
       {if_else(is.finite(.), ., as.Date(NA))},
     earliest_flexi_sig = pmin(flexi_sig_primary_care, flexi_sig_sus, na.rm = TRUE) %>% 
       {if_else(is.finite(.), ., as.Date(NA))},
-    earliest_crc_diagnosis = pmin(earliest_crc_diagnosis_ever_date, earliest_crc_admission_ever_date, na.rm = TRUE)
+    earliest_crc_diagnosis = pmin(earliest_crc_diagnosis_ever_date, earliest_crc_admission_ever_date, na.rm = TRUE),
+    any_crc_in_window = !is.na(earliest_crc_diagnosis) & earliest_crc_diagnosis >= start_date
   )
 primary_data <- input %>%
   mutate(
@@ -64,7 +66,11 @@ primary_data <- input %>%
       starts_with("qfit"),
       ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with missing values
     )
-  )
+  ) %>% 
+  filter(is.na(earliest_crc_diagnosis) | earliest_crc_diagnosis >= start_date)
+
+primary_data_over_50 <- primary_data %>% 
+  filter(age >= 50)
 cat("Data last updated at ", as.character(file.mtime("../output/input.csv")), "\n", sep = "")
 cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
 ```
@@ -88,6 +94,9 @@ qfit_rows <- quos(
   "Colorectal cancer" = crc_diagnosis,
   "Colorectal cancer if qFIT < 10" = first_table_row(crc_diagnosis, data_filter = !qfit_pos),
   "Colorectal cancer if qFIT >= 10" = first_table_row(crc_diagnosis, data_filter = qfit_pos),
+  "Colorectal cancer (inc sec care)" = any_crc_in_window,
+  "Colorectal cancer (inc sec care) if qFIT < 10" = first_table_row(any_crc_in_window, data_filter = !qfit_pos),
+  "Colorectal cancer (inc sec care) if qFIT >= 10" = first_table_row(any_crc_in_window, data_filter = qfit_pos),
   "FT referral" = ft_referral,
   "Colonoscopy SUS" = !is.na(colonoscopy_sus),
   "Colonoscopy SUS if qFIT < 10" = first_table_row(!is.na(colonoscopy_sus), data_filter = !qfit_pos),
@@ -138,7 +147,7 @@ first_table(
 
 ```{r}
 first_table(
-  primary_data %>% filter(age >= 50),
+  primary_data_over_50,
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
@@ -150,8 +159,7 @@ first_table(
 
 ```{r}
 first_table(
-  primary_data %>%
-    filter(age >= 50) %>% 
+  primary_data_over_50 %>% 
     mutate(qfit_pos = qfit_pos_assume_zero_neg),
   .options = ft_options,
   .column_variable = region,
@@ -175,14 +183,11 @@ cum_prop_data <- input %>%
     input %>% filter(age >= 50) %>% count(region, name = "denom"),
     by = "region"
   ) %>%
-  mutate(cum_prop = cum_num / denom)
+  mutate(cum_prop = round(cum_num / 5, 0) * 5 / denom)
 
 write_csv(cum_prop_data, "../output/cum_prop_data.csv")
 
 cum_prop_data %>% 
-  mutate(
-    cum_prop = round(cum_num / 5, 0) * 5 / denom
-  ) %>% 
   ggplot(aes(month, cum_prop, group = region, colour = region)) +
   geom_line() +
   geom_point() +
@@ -193,7 +198,7 @@ cum_prop_data %>%
 # Comparison of primary and secondary care CRC diagnosis (based on secondary admissions)
 
 ```{r}
-primary_data %>%
+primary_data_over_50 %>%
   count(
     region,
     primary_care_ever = earliest_crc_diagnosis_ever,
