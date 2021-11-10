@@ -36,7 +36,7 @@ print_ft <- function(x) {
 ```{r load data}
 input <- read_csv("../output/input.csv", col_types = cols(.default = col_character())) %>% 
   mutate(
-    across(c(matches("^(qfit|ft.*|crc.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
+    across(c(matches("^(qfit|ft.*|crc.*|earliest.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
     across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
     across(c(qfit, age, fobt_num), as.numeric),
     qfit_orig = if_else(is.na(qfit_date), NA_real_, qfit),
@@ -55,7 +55,8 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
     earliest_colonoscopy = pmin(colonoscopy_primary_care, colonoscopy_sus, na.rm = TRUE) %>% 
       {if_else(is.finite(.), ., as.Date(NA))},
     earliest_flexi_sig = pmin(flexi_sig_primary_care, flexi_sig_sus, na.rm = TRUE) %>% 
-      {if_else(is.finite(.), ., as.Date(NA))}
+      {if_else(is.finite(.), ., as.Date(NA))},
+    earliest_crc_diagnosis = pmin(earliest_crc_diagnosis_ever_date, earliest_crc_admission_ever_date, na.rm = TRUE)
   )
 primary_data <- input %>%
   mutate(
@@ -71,7 +72,7 @@ cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
 # Top level summary by region
 
 ```{r}
-ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE)
+ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = 5)
 qfit_overall_rows <- quos(
   "qFIT done and included here" = !is.na(qfit_date),
   "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit_date)),
@@ -161,8 +162,10 @@ first_table(
 
 # Cumulative proportion of population having had a qFIT over time
 
+Cumulative numbers of qFITs rounded to nearest 5 to avoid statistical disclosure control issues
+
 ```{r}
-input %>%
+cum_prop_data <- input %>%
   filter(!is.na(qfit_date), age >= 50) %>% 
   count(region, month = floor_date(qfit_date, "month")) %>%
   arrange(region, month) %>%
@@ -172,7 +175,14 @@ input %>%
     input %>% filter(age >= 50) %>% count(region, name = "denom"),
     by = "region"
   ) %>%
-  mutate(cum_prop = cum_num / denom) %>%
+  mutate(cum_prop = cum_num / denom)
+
+write_csv("../output/cum_prop_data.csv")
+
+cum_prop_data %>% 
+  mutate(
+    cum_prop = round(cum_num / 5, 0) * 5 / denom
+  ) %>% 
   ggplot(aes(month, cum_prop, group = region, colour = region)) +
   geom_line() +
   geom_point() +
@@ -184,6 +194,13 @@ input %>%
 
 ```{r}
 primary_data %>%
-  count(region, primary_care = crc_diagnosis, seconday_care = !is.na(crc_admission_date)) %>%
+  count(
+    region,
+    primary_care_ever = earliest_crc_diagnosis_ever,
+    primary_care_now = crc_diagnosis,
+    secondary_care_ever = !is.na(earliest_crc_admission_ever_date),
+    secondary_care_now = !is.na(crc_admission_date)
+  ) %>%
+  mutate(n = if_else(between(n, 1, 5), NA_integer_, n)) %>% 
   knitr::kable()
 ```
