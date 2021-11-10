@@ -177,7 +177,7 @@ cum_prop_data <- input %>%
   ) %>%
   mutate(cum_prop = cum_num / denom)
 
-write_csv("../output/cum_prop_data.csv")
+write_csv(cum_prop_data, "../output/cum_prop_data.csv")
 
 cum_prop_data %>% 
   mutate(
