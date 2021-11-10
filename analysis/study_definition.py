@@ -151,6 +151,20 @@ study = StudyDefinition(
         },
     ),
 
+    earliest_crc_diagnosis_ever=patients.with_these_clinical_events(
+        crc_diagnosis_codes,
+        find_first_match_in_period=True,
+        between=["1900-01-01", "2021-04-30"],
+        returning="binary_flag",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "1900-01-01", "latest": "2021-04-30"},
+            "incidence": 0.1,
+        },
+    ),
+
+
     crc_admission_date=patients.admitted_to_hospital(
         find_first_match_in_period=True,
         between=["2020-04-17", "2021-04-30"],
@@ -162,6 +176,19 @@ study = StudyDefinition(
         },
         with_these_primary_diagnoses=crc_diagnosis_icd10_codes
     ),
+
+    earliest_crc_admission_ever_date=patients.admitted_to_hospital(
+        find_first_match_in_period=True,
+        between=["1900-01-01", "2021-04-30"],
+        returning="date_admitted",
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "1900-01-01", "latest": "2021-04-30"},
+            "incidence": 0.1,
+        },
+        with_these_diagnoses=crc_diagnosis_icd10_codes
+    ),
+
     
     colonoscopy_primary_care=patients.with_these_clinical_events(
         colonoscopy_codes,
