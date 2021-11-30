@@ -37,6 +37,7 @@ actions:
     outputs:
       moderately_sensitive:
         cum_prop_data: output/cum_prop_data.csv
+        cum_prop_graph: output/cum_prop_graph.png
         qfit_html: output/qfit_analysis_region.html
 
   qfit_region_rmarkdown_no_suppress:

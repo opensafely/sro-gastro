@@ -197,6 +197,8 @@ cum_prop_data %>%
   geom_point() +
   xlab("Month") +
   ylab("Cumulative proportion")
+
+ggsave("../output/cum_prop_graph.png", width = 12, height = 7)
 ```
 
 # Comparison of primary and secondary care CRC diagnosis (based on secondary admissions)
