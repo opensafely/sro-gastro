@@ -187,7 +187,10 @@ cum_prop_data <- input %>%
     input %>% filter(age >= 50) %>% count(region, name = "denom"),
     by = "region"
   ) %>%
-  mutate(cum_prop = round(cum_num / 5, 0) * 5 / denom)
+  mutate(
+    cum_num = round(cum_num / 5, 0) * 5,
+    cum_prop = cum_num / denom
+  )
 
 write_csv(cum_prop_data, "../output/cum_prop_data.csv")
 
