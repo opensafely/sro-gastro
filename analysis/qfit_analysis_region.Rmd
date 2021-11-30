@@ -10,6 +10,8 @@ output:
       dev: png
       fig_width: 12
       fig_height: 8
+params:
+  suppress_if_le: 5
 ---
 
 ```{r setup, include=FALSE}
@@ -78,7 +80,7 @@ cat("Analysis run at ", as.character(Sys.time()), "\n", sep = "")
 # Top level summary by region
 
 ```{r}
-ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = 5)
+ft_options <- first_table_options(include_denom = TRUE, percent_first = TRUE, include_p = FALSE, suppress_if_le = params$suppress_if_le)
 qfit_overall_rows <- quos(
   "qFIT done and included here" = !is.na(qfit_date),
   "Age if qFIT done" = first_table_row(age, data_filter = !is.na(qfit_date)),
