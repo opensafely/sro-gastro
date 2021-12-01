@@ -55,6 +55,11 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
       qfit_orig == 0 ~ FALSE,
       TRUE ~ NA
     ),
+    qfit_three_cat = case_when(
+      qfit >= 10 ~ "positive",
+      qfit < 10 ~ "negative",
+      qfit_orig == 0 ~ "null"
+    ),
     earliest_colonoscopy = pmin(colonoscopy_primary_care, colonoscopy_sus, na.rm = TRUE) %>% 
       {if_else(is.finite(.), ., as.Date(NA))},
     earliest_flexi_sig = pmin(flexi_sig_primary_care, flexi_sig_sus, na.rm = TRUE) %>% 
@@ -66,7 +71,7 @@ primary_data <- input %>%
   mutate(
     across(
       starts_with("qfit"),
-      ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with missing values
+      ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with null values
     )
   ) %>% 
   filter(is.na(earliest_crc_diagnosis) | earliest_crc_diagnosis >= start_date)
@@ -89,54 +94,55 @@ qfit_overall_rows <- quos(
 )
 qfit_rows <- quos(
   !!!qfit_overall_rows,
-  "qFIT == 0 (including those with missing comparator)" = qfit_orig == 0,
-  "qFIT == 0 (excluding those with missing comparator)" = first_table_row(qfit_orig == 0, data_filter = !is.na(qfit_comp)),
-  "qFIT >= 10" = qfit_pos,
+  "qFIT category" = qfit_three_cat,
   "Age" = age,
   "Colorectal cancer" = crc_diagnosis,
   "Colorectal cancer if qFIT < 10" = first_table_row(crc_diagnosis, data_filter = !qfit_pos),
   "Colorectal cancer if qFIT >= 10" = first_table_row(crc_diagnosis, data_filter = qfit_pos),
-  "Zero FITs out of the colorectal cancer with qFIT < 10" = first_table_row(qfit_orig == 0, data_filter = crc_diagnosis & !qfit_pos),
+  "Colorectal cancer if qFIT null" = first_table_row(crc_diagnosis, data_filter = qfit_three_cat == "null"),
   "Colorectal cancer (inc sec care)" = any_crc_in_window,
   "Colorectal cancer (inc sec care) if qFIT < 10" = first_table_row(any_crc_in_window, data_filter = !qfit_pos),
   "Colorectal cancer (inc sec care) if qFIT >= 10" = first_table_row(any_crc_in_window, data_filter = qfit_pos),
-  "Zero FITs out of the colorectal cancer (inc sec care) with qFIT < 10" = first_table_row(qfit_orig == 0, data_filter = any_crc_in_window & !qfit_pos),
+  "Colorectal cancer (inc sec care) if qFIT null" = first_table_row(any_crc_in_window, data_filter = qfit_three_cat == "null"),
   "FT referral" = ft_referral,
-  "Colonoscopy SUS" = !is.na(colonoscopy_sus),
+  # "Colonoscopy SUS" = !is.na(colonoscopy_sus),
   "Colonoscopy SUS if qFIT < 10" = first_table_row(!is.na(colonoscopy_sus), data_filter = !qfit_pos),
   "Colonoscopy SUS if qFIT >= 10" = first_table_row(!is.na(colonoscopy_sus), data_filter = qfit_pos),
-  "Colonoscopy SUS if no qFIT" = first_table_row(!is.na(colonoscopy_sus), data_filter = is.na(qfit_pos)),
-  "Flexi sig SUS" = !is.na(flexi_sig_sus),
+  "Colonoscopy SUS if null qFIT" = first_table_row(!is.na(colonoscopy_sus), data_filter = qfit_three_cat == "null"),
+  "Colonoscopy SUS if no qFIT" = first_table_row(!is.na(colonoscopy_sus), data_filter = is.na(qfit_date)),
+  # "Flexi sig SUS" = !is.na(flexi_sig_sus),
   "Flexi sig SUS if qFIT < 10" = first_table_row(!is.na(flexi_sig_sus), data_filter = !qfit_pos),
   "Flexi sig SUS if qFIT >= 10" = first_table_row(!is.na(flexi_sig_sus), data_filter = qfit_pos),
-  "Flexi sig SUS if no qFIT" = first_table_row(!is.na(flexi_sig_sus), data_filter = is.na(qfit_pos)),
-  "Colonoscopy primary care" = !is.na(colonoscopy_primary_care),
-  "Colonoscopy primary care if qFIT < 10" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = !qfit_pos),
-  "Colonoscopy primary care if qFIT >= 10" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = qfit_pos),
-  "Colonoscopy primary care if no qFIT" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = is.na(qfit_pos)),
-  "Flexi sig primary care" = !is.na(flexi_sig_primary_care),
-  "Flexi sig primary care if qFIT < 10" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = !qfit_pos),
-  "Flexi sig primary care if qFIT >= 10" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = qfit_pos),
-  "Flexi sig primary care if no qFIT" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = is.na(qfit_pos)),
-  "Colonoscopy either" = !is.na(earliest_colonoscopy),
-  "Colonoscopy either if qFIT < 10" = first_table_row(!is.na(earliest_colonoscopy), data_filter = !qfit_pos),
-  "Colonoscopy either if qFIT >= 10" = first_table_row(!is.na(earliest_colonoscopy), data_filter = qfit_pos),
-  "Colonoscopy either if no qFIT" = first_table_row(!is.na(earliest_colonoscopy), data_filter = is.na(qfit_pos)),
-  "Flexi sig either" = !is.na(earliest_flexi_sig),
-  "Flexi sig either if qFIT < 10" = first_table_row(!is.na(earliest_flexi_sig), data_filter = !qfit_pos),
-  "Flexi sig either if qFIT >= 10" = first_table_row(!is.na(earliest_flexi_sig), data_filter = qfit_pos),
-  "Flexi sig either if no qFIT" = first_table_row(!is.na(earliest_flexi_sig), data_filter = is.na(qfit_pos)),
-  "Colonoscopy or flexi sig either" = !is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig),
-  "Colonoscopy either if qFIT < 10" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = !qfit_pos),
-  "Colonoscopy either if qFIT >= 10" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = qfit_pos),
-  "Colonoscopy either if no qFIT" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = is.na(qfit_pos)),
+  "Flexi sig SUS if null qFIT" = first_table_row(!is.na(flexi_sig_sus), data_filter = qfit_three_cat == "null"),
+  "Flexi sig SUS if no qFIT" = first_table_row(!is.na(flexi_sig_sus), data_filter = is.na(qfit_date)),
+  # "Colonoscopy primary care if qFIT < 10" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = !qfit_pos),
+  # "Colonoscopy primary care if qFIT >= 10" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = qfit_pos),
+  # "Colonoscopy primary care if null qFIT" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = qfit_three_cat == "null"),
+  # "Colonoscopy primary care if no qFIT" = first_table_row(!is.na(colonoscopy_primary_care), data_filter = is.na(qfit_date)),
+  # "Flexi sig primary care if qFIT < 10" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = !qfit_pos),
+  # "Flexi sig primary care if qFIT >= 10" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = qfit_pos),
+  # "Flexi sig primary care if null qFIT" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = qfit_three_Cat == "null"),
+  # "Flexi sig primary care if no qFIT" = first_table_row(!is.na(flexi_sig_primary_care), data_filter = is.na(qfit_date)),
+  # "Colonoscopy either" = !is.na(earliest_colonoscopy),
+  # "Colonoscopy either if qFIT < 10" = first_table_row(!is.na(earliest_colonoscopy), data_filter = !qfit_pos),
+  # "Colonoscopy either if qFIT >= 10" = first_table_row(!is.na(earliest_colonoscopy), data_filter = qfit_pos),
+  # "Colonoscopy either if no qFIT" = first_table_row(!is.na(earliest_colonoscopy), data_filter = is.na(qfit_pos)),
+  # "Flexi sig either" = !is.na(earliest_flexi_sig),
+  # "Flexi sig either if qFIT < 10" = first_table_row(!is.na(earliest_flexi_sig), data_filter = !qfit_pos),
+  # "Flexi sig either if qFIT >= 10" = first_table_row(!is.na(earliest_flexi_sig), data_filter = qfit_pos),
+  # "Flexi sig either if no qFIT" = first_table_row(!is.na(earliest_flexi_sig), data_filter = is.na(qfit_pos)),
+  # "Colonoscopy or flexi sig either" = !is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig),
+  # "Colonoscopy either if qFIT < 10" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = !qfit_pos),
+  # "Colonoscopy either if qFIT >= 10" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = qfit_pos),
+  # "Colonoscopy either if no qFIT" = first_table_row(!is.na(earliest_colonoscopy) | !is.na(earliest_flexi_sig), data_filter = is.na(qfit_pos)),
   "Referral qFIT < 10" = first_table_row(ft_referral, data_filter = !qfit_pos),
   "Referral qFIT >= 10" = first_table_row(ft_referral, data_filter = qfit_pos),
+  "Referral null qFIT" = first_table_row(ft_referral, data_filter = qfit_three_cat == "null"),
   "Referral no qFIT" = first_table_row(ft_referral, data_filter = is.na(qfit_pos)),
-  "qFIT refl timing" = first_table_row((qfit_date %--% ft_referral_date) / ddays(1), data_filter = !is.na(qfit)),
-  "qFIT cscopy timing" = first_table_row((qfit_date %--% earliest_colonoscopy) / ddays(1), data_filter = !is.na(qfit)),
-  "qFIT flexi timing" = first_table_row((qfit_date %--% earliest_flexi_sig) / ddays(1), data_filter = !is.na(qfit)),
-  "qFIT diagnosis timing" = first_table_row((qfit_date %--% crc_diagnosis_date) / ddays(1), data_filter = !is.na(qfit))
+  "qFIT refl timing" = first_table_row((qfit_date %--% ft_referral_date) / ddays(1), data_filter = !is.na(qfit_date)),
+  "qFIT cscopy timing" = first_table_row((qfit_date %--% earliest_colonoscopy) / ddays(1), data_filter = !is.na(qfit_date)),
+  "qFIT flexi timing" = first_table_row((qfit_date %--% earliest_flexi_sig) / ddays(1), data_filter = !is.na(qfit_date)),
+  "qFIT diagnosis timing" = first_table_row((qfit_date %--% crc_diagnosis_date) / ddays(1), data_filter = !is.na(qfit_date))
 )
 first_table(
   primary_data,
@@ -152,19 +158,6 @@ first_table(
 ```{r}
 first_table(
   primary_data_over_50,
-  .options = ft_options,
-  .column_variable = region,
-  !!!qfit_rows
-) %>% 
-  print_ft()
-```
-
-## Main analysis, >= 50 years old and assuming zero is negative (not missing)
-
-```{r}
-first_table(
-  primary_data_over_50 %>% 
-    mutate(qfit_pos = qfit_pos_assume_zero_neg),
   .options = ft_options,
   .column_variable = region,
   !!!qfit_rows
