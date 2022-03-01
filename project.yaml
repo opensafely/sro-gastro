@@ -38,6 +38,8 @@ actions:
       moderately_sensitive:
         cum_prop_data: output/cum_prop_data.csv
         cum_prop_graph: output/cum_prop_graph.png
+        cum_prop_data_all_ages: output/cum_prop_data_all_ages.csv
+        cum_prop_graph_all_ages: output/cum_prop_graph_all_ages.png
         qfit_html: output/qfit_analysis_region.html
 
   qfit_region_rmarkdown_no_suppress:

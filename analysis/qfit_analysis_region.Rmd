@@ -40,7 +40,7 @@ start_date <- ymd("2020-04-17")
 input <- read_csv("../output/input.csv", col_types = cols(.default = col_character())) %>% 
   mutate(
     across(c(matches("^(qfit|ft.*|crc.*|earliest.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
-    across(c(ft_referral, ft_clinic, crc_diagnosis), ~as.logical(as.integer(.x))),
+    across(c(ft_referral, ft_clinic, crc_diagnosis, registered_in_main_study_period), ~as.logical(as.integer(.x))),
     across(c(qfit, age, fobt_num), as.numeric),
     qfit_orig = if_else(is.na(qfit_date), NA_real_, qfit),
     qfit = qfit +
@@ -74,7 +74,11 @@ primary_data <- input %>%
       ~if_else(qfit_date <= ymd("2020-12-31"), .x, .x[length(.x) + 1]) # Replace any qFIT data beyond end of 2020 with null values
     )
   ) %>% 
-  filter(is.na(earliest_crc_diagnosis) | earliest_crc_diagnosis >= start_date)
+  filter(
+    is.na(earliest_crc_diagnosis) |
+      earliest_crc_diagnosis >= start_date,
+    registered_in_main_study_period
+  )
 
 primary_data_over_50 <- primary_data %>% 
   filter(age >= 50)
@@ -170,31 +174,51 @@ first_table(
 Cumulative numbers of qFITs rounded to nearest 5 to avoid statistical disclosure control issues
 
 ```{r}
-cum_prop_data <- input %>%
-  filter(!is.na(qfit_date), age >= 50) %>% 
-  count(region, month = floor_date(qfit_date, "month")) %>%
-  arrange(region, month) %>%
-  group_by(region) %>%
-  mutate(cum_num = cumsum(n)) %>%
-  inner_join(
-    input %>% filter(age >= 50) %>% count(region, name = "denom"),
-    by = "region"
-  ) %>%
-  mutate(
-    cum_num = round(cum_num / 5, 0) * 5,
-    cum_prop = cum_num / denom
+make_cum_prop_data <- function(data) {
+  cum_props <- data %>% 
+    filter(!is.na(qfit_date)) %>% 
+    count(region, month = floor_date(qfit_date, "month")) %>%
+    arrange(region, month) %>%
+    group_by(region) %>%
+    mutate(cum_num = cumsum(n)) %>%
+    inner_join(
+      data %>% count(region, name = "denom"),
+      by = "region"
+    ) %>%
+    mutate(
+      cum_num = round(cum_num / 5, 0) * 5,
+      cum_prop = cum_num / denom
+    )
+  list(
+    cum_props = cum_props,
+    plot = cum_props %>% 
+      ggplot(aes(month, cum_prop, group = region, colour = region)) +
+      geom_line() +
+      geom_point() +
+      xlab("Month") +
+      ylab("Cumulative proportion")
   )
+}
 
-write_csv(cum_prop_data, "../output/cum_prop_data.csv")
+cum_prop_data_over_50 <- make_cum_prop_data(input %>% filter(age >= 50))
+cum_prop_data_all_ages <- make_cum_prop_data(input)
 
-cum_prop_data %>% 
-  ggplot(aes(month, cum_prop, group = region, colour = region)) +
-  geom_line() +
-  geom_point() +
-  xlab("Month") +
-  ylab("Cumulative proportion")
+write_csv(cum_prop_data_over_50$cum_props, "../output/cum_prop_data.csv")
+write_csv(cum_prop_data_all_ages$cum_props, "../output/cum_prop_data_all_ages.csv")
+```
 
+## Over 50's
+
+```{r}
+cum_prop_data_over_50$plot
 ggsave("../output/cum_prop_graph.png", width = 12, height = 7)
+```
+
+## Over 50's
+
+```{r}
+cum_prop_data_all_ages$plot
+ggsave("../output/cum_prop_graph_all_ages.png", width = 12, height = 7)
 ```
 
 # Comparison of primary and secondary care CRC diagnosis (based on secondary admissions)

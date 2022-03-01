@@ -15,7 +15,7 @@ study = StudyDefinition(
         (sex = "M" OR sex = "F")
         """,
         has_follow_up=patients.registered_with_one_practice_between(
-            "2020-04-17", "2020-12-31"
+            "2020-04-17", "2022-02-28"
         )
     ),
     age=patients.age_as_of(
@@ -42,6 +42,12 @@ study = StudyDefinition(
             "incidence": 0.75,
         },
     ),
+    registered_in_main_study_period=patients.registered_with_one_practice_between(
+      "2020-04-17", "2020-12-31",
+      return_expectations={
+        "incidence": 0.95
+      }
+    ),
     stp=patients.registered_practice_as_of(
         "2020-04-17",
         returning="stp_code",
@@ -61,7 +67,7 @@ study = StudyDefinition(
     qfit=patients.with_these_clinical_events(
         qfit_codes,
         find_first_match_in_period=True,
-        between=["2020-04-17", "2021-10-31"],
+        between=["2020-04-17", "2022-02-28"],
         returning="numeric_value",
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
