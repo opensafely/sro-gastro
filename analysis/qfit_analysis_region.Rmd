@@ -203,8 +203,8 @@ make_cum_prop_data <- function(data) {
 cum_prop_data_over_50 <- make_cum_prop_data(input %>% filter(age >= 50))
 cum_prop_data_all_ages <- make_cum_prop_data(input)
 
-write_csv(cum_prop_data_over_50$cum_props, "../output/cum_prop_data.csv")
-write_csv(cum_prop_data_all_ages$cum_props, "../output/cum_prop_data_all_ages.csv")
+write_csv(cum_prop_data_over_50$cum_props %>% select(-n), "../output/cum_prop_data.csv")
+write_csv(cum_prop_data_all_ages$cum_props %>% select(-n), "../output/cum_prop_data_all_ages.csv")
 ```
 
 ## Over 50's
