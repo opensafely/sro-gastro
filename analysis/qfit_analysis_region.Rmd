@@ -186,8 +186,10 @@ make_cum_prop_data <- function(data) {
       by = "region"
     ) %>%
     mutate(
-      cum_num = round(cum_num / 5, 0) * 5,
-      cum_prop = cum_num / denom
+      cum_num = {round(cum_num / 5, 0) * 5} %>% 
+        {if_else(. == 5, 0, .)},
+      cum_prop = cum_num / denom,
+      across(c(cum_num, cum_prop), list(red = ~if_else(. == 0, "[REDACTED]", as.character(.))))
     )
   list(
     cum_props = cum_props,
@@ -203,8 +205,15 @@ make_cum_prop_data <- function(data) {
 cum_prop_data_over_50 <- make_cum_prop_data(input %>% filter(age >= 50))
 cum_prop_data_all_ages <- make_cum_prop_data(input)
 
-write_csv(cum_prop_data_over_50$cum_props %>% select(-n), "../output/cum_prop_data.csv")
-write_csv(cum_prop_data_all_ages$cum_props %>% select(-n), "../output/cum_prop_data_all_ages.csv")
+cum_prop_data_over_50$cum_props %>%
+  select(-c(n, cum_num, cum_prop)) %>%
+  rename_all(str_replace, "_red$", "") %>% 
+  write_csv("../output/cum_prop_data.csv")
+
+cum_prop_data_all_ages$cum_props %>%
+  select(-c(n, cum_num, cum_prop)) %>%
+  rename_all(str_replace, "_red$", "") %>% 
+  write_csv("../output/cum_prop_data_all_ages.csv")
 ```
 
 ## Over 50's
