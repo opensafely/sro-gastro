@@ -39,7 +39,7 @@ print_ft <- function(x) {
 start_date <- ymd("2020-04-17")
 input <- read_csv("../output/input.csv", col_types = cols(.default = col_character())) %>% 
   mutate(
-    across(c(matches("^(qfit|ft.*|crc.*|earliest.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
+    across(c(matches("^(qfit|qfit_p\\d+|ft.*|crc.*|earliest.*)_date$"), colonoscopy_sus, flexi_sig_sus, colonoscopy_primary_care, flexi_sig_primary_care), lubridate::ymd),
     across(c(ft_referral, ft_clinic, crc_diagnosis, registered_in_main_study_period), ~as.logical(as.integer(.x))),
     across(c(qfit, age, fobt_num), as.numeric),
     qfit_orig = if_else(is.na(qfit_date), NA_real_, qfit),
@@ -60,6 +60,7 @@ input <- read_csv("../output/input.csv", col_types = cols(.default = col_charact
       qfit < 10 ~ "negative",
       qfit_orig == 0 ~ "null"
     ),
+    across(matches("qfit_p[1-3]_date"), list(present = ~!is.na(.x))), 
     earliest_colonoscopy = pmin(colonoscopy_primary_care, colonoscopy_sus, na.rm = TRUE) %>% 
       {if_else(is.finite(.), ., as.Date(NA))},
     earliest_flexi_sig = pmin(flexi_sig_primary_care, flexi_sig_sus, na.rm = TRUE) %>% 
@@ -243,4 +244,16 @@ primary_data_over_50 %>%
   ) %>%
   mutate(n = if_else(between(n, 1, 5), NA_integer_, n)) %>% 
   knitr::kable()
+```
+
+# Numbers by region and time period
+
+```{r}
+input %>% 
+  group_by(region) %>% 
+  summarise(
+    n = n(),
+    across(matches("qfit_p\\d+_date_present"), list(n = sum, prop = mean))
+  ) %>% 
+  rename_all(str_replace, "_date", "")
 ```

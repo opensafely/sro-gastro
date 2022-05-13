@@ -15,7 +15,7 @@ study = StudyDefinition(
         (sex = "M" OR sex = "F")
         """,
         has_follow_up=patients.registered_with_one_practice_between(
-            "2020-04-17", "2022-02-28"
+            "2020-04-17", "2022-05-13"
         )
     ),
     age=patients.age_as_of(
@@ -67,7 +67,7 @@ study = StudyDefinition(
     qfit=patients.with_these_clinical_events(
         qfit_codes,
         find_first_match_in_period=True,
-        between=["2020-04-17", "2022-02-28"],
+        between=["2020-04-17", "2022-05-13"],
         returning="numeric_value",
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
@@ -86,6 +86,46 @@ study = StudyDefinition(
         "qfit",
         return_expectations={"float": {"distribution": "normal", "mean": 10.0, "stddev": 0.0}}
     ),
+    qfit_p1=patients.with_these_clinical_events(
+        qfit_codes,
+        find_first_match_in_period=True,
+        between=["2020-04-01", "2021-02-28"],
+        returning="numeric_value",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
+            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "incidence": 0.1,
+        },
+    ),
+    qfit_p2=patients.with_these_clinical_events(
+        qfit_codes,
+        find_first_match_in_period=True,
+        between=["2021-03-01", "2021-12-31"],
+        returning="numeric_value",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
+            "date": {"earliest": "2020-03-01", "latest": "2021-12-31"},
+            "incidence": 0.1,
+        },
+    ),
+    qfit_p3=patients.with_these_clinical_events(
+        qfit_codes,
+        find_first_match_in_period=True,
+        between=["2022-01-01", "2022-05-13"],
+        returning="numeric_value",
+        include_date_of_match=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
+            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "incidence": 0.1,
+        },
+    ),
+
     fobt=patients.with_these_clinical_events(
         fobt_codes,
         find_first_match_in_period=True,
