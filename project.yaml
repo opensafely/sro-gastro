@@ -41,6 +41,7 @@ actions:
         cum_prop_data_all_ages: output/cum_prop_data_all_ages.csv
         cum_prop_graph_all_ages: output/cum_prop_graph_all_ages.png
         qfit_html: output/qfit_analysis_region.html
+        n_by_region_period: output/n_by_region_period.csv
 
   qfit_region_rmarkdown_no_suppress:
     run: r:latest -e 'rmarkdown::render("analysis/qfit_analysis_region.Rmd", output_dir = "output", output_file = "qfit_analysis_region_no_suppress.html", params = list(suppress_if_le = FALSE))'

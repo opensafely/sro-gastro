@@ -158,7 +158,7 @@ first_table(
   print_ft()
 ```
 
-## Main analysis, restricted to >=50 years old
+## Main analysis, restricted to \>=50 years old
 
 ```{r}
 first_table(
@@ -248,12 +248,24 @@ primary_data_over_50 %>%
 
 # Numbers by region and time period
 
+**Periods**
+
+| Period | Start date | End date   |
+|--------|------------|------------|
+| p1     | 2020-04-01 | 2021-02-28 |
+| p2     | 2021-03-01 | 2021-12-31 |
+| p3     | 2022-01-01 | 2022-05-13 |
+
 ```{r}
-input %>% 
+n_by_region_period <- input %>% 
   group_by(region) %>% 
   summarise(
     n = n(),
     across(matches("qfit_p\\d+_date_present"), list(n = sum, prop = mean))
   ) %>% 
   rename_all(str_replace, "_date", "")
+
+n_by_region_period
+
+write_csv(n_by_region_period, "../output/n_by_region_period.csv")
 ```

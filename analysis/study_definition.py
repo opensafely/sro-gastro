@@ -95,7 +95,7 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={
             "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
-            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "date": {"earliest": "2020-04-01", "latest": "2021-02-28"},
             "incidence": 0.1,
         },
     ),
@@ -108,7 +108,7 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={
             "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
-            "date": {"earliest": "2020-03-01", "latest": "2021-12-31"},
+            "date": {"earliest": "2021-03-01", "latest": "2021-12-31"},
             "incidence": 0.1,
         },
     ),
@@ -121,7 +121,7 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={
             "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
-            "date": {"earliest": "2020-04-17", "latest": "2021-02-28"},
+            "date": {"earliest": "2022-01-01", "latest": "2022-05-13"},
             "incidence": 0.1,
         },
     ),
