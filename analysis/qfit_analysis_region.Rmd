@@ -269,3 +269,26 @@ n_by_region_period
 
 write_csv(n_by_region_period, "../output/n_by_region_period.csv")
 ```
+
+```{r qFITs by region and month}
+n_by_region_month <- input %>%
+  select(region, matches("^qfit_p\\d+_date$")) %>%
+  pivot_longer(-region, names_to = "period", values_to = "date") %>% 
+  filter(!is.na(date)) %>%
+  count(month = strftime(date, "%Y-%m"), region) %>% 
+  complete(region, month, fill = list(n = 0L)) %>% 
+  inner_join(
+    input %>% 
+      count(region, name = "n_total"),
+    by = "region"
+  ) %>%
+  mutate(
+    n = case_when(
+      is.null(params$suppress_if_le) ~ as.character(n),
+      between(n, 1, params$suppress_if_le) ~ "1 to 5",
+      TRUE ~ as.character(n)
+    )
+  )
+
+write_csv(n_by_region_month, "../output/n_by_region_month.csv")
+```
