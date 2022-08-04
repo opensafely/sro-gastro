@@ -115,13 +115,13 @@ study = StudyDefinition(
     qfit_p3=patients.with_these_clinical_events(
         qfit_codes,
         find_first_match_in_period=True,
-        between=["2022-01-01", "2022-05-13"],
+        between=["2022-01-01", "2022-07-31"],
         returning="numeric_value",
         include_date_of_match=True,
         date_format="YYYY-MM-DD",
         return_expectations={
             "float": {"distribution": "normal", "mean": 8.0, "stddev": 4.0},
-            "date": {"earliest": "2022-01-01", "latest": "2022-05-13"},
+            "date": {"earliest": "2022-01-01", "latest": "2022-07-31"},
             "incidence": 0.1,
         },
     ),
